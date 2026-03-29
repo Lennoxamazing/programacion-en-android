@@ -1,0 +1,90 @@
+
+1. Estructura del Proyecto (Patrón MVC)
+En un "Dynamic Web Project" de Java, debes organizar tus carpetas de la siguiente manera:
+•	Model: Clases Java que representan los datos (ej. Usuario, Cuenta).
+•	View: Archivos .jsp en la carpeta WebContent o webapp.
+•	Controller: Servlets que manejan las peticiones del usuario y conectan el modelo con la vista.
+Se crea en class de java el siguiente código para gestionar saldo y montos:
+src/main/java/model/Billetera.java
+
+public class Billetera {
+    private double saldo;
+    public Billetera(double saldoInicial) {
+        this.saldo = saldoInicial;
+    }
+    public double getSaldo() { return saldo; 
+    public void depositar(double monto) {
+        if (monto > 0) this.saldo += monto;
+    }
+    public void retirar(double monto) {
+        if (monto > 0 && monto <= saldo) this.saldo -= monto;
+    }
+}
+
+
+Para el Proyecto del Módulo #5 de Alke Wallet, el enfoque cambia de una aplicación móvil Android a una aplicación web utilizando Java (Servlet/JSP) con el patrón de diseño MVC (Modelo-Vista-Controlador).
+Aquí tienes el paso a paso técnico y los códigos base para estructurar este nuevo requerimiento:
+1. Estructura del Proyecto (Patrón MVC)
+En un "Dynamic Web Project" de Java, debes organizar tus carpetas de la siguiente manera:
+•	Model: Clases Java que representan los datos (ej. Usuario, Cuenta).
+•	View: Archivos .jsp en la carpeta WebContent o webapp.
+•	Controller: Servlets que manejan las peticiones del usuario y conectan el modelo con la vista.
+________________________________________
+2. El Modelo (Java Class)
+Crea una clase para gestionar el saldo y los fondos. src/main/java/model/Billetera.java
+public class Billetera {
+    private double saldo;
+    public Billetera(double saldoInicial) {
+        this.saldo = saldoInicial;
+    }
+    public double getSaldo() { return saldo; }
+    public void depositar(double monto) {
+        if (monto > 0) this.saldo += monto;
+    }
+    public void retirar(double monto) {
+        if (monto > 0 && monto <= saldo) this.saldo -= monto;
+    }
+}
+________________________________________
+3. El Controlador (Servlet)
+Este componente recibe las órdenes de la web (depositar/retirar). src/main/java/controller/WalletServlet.java
+@WebServlet("/wallet")
+public class WalletServlet extends HttpServlet {
+    private Billetera miBilletera = new Billetera(1000.0); // Saldo inicial
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String accion = request.getParameter("accion");
+        double monto = Double.parseDouble(request.getParameter("monto"));
+        if ("depositar".equals(accion)) {
+            miBilletera.depositar(monto);
+        } else if ("retirar".equals(accion)) {
+            miBilletera.retirar(monto);
+        }
+        request.setAttribute("saldo", miBilletera.getSaldo());
+        request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+}
+
+
+
+
+
+
+4.La Vista (JSP)
+Aquí es donde el usuario interactúa. (Colores y logos). 
+WebContent/index.jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<html>
+<head>
+    <title>Alke Wallet - Gestión de Fondos</title>
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+    <h1>Tu Saldo Actual: $ ${saldo != null ? saldo : "1000.0"}</h1>
+    <form action="wallet" method="post">
+        <input type="number" name="monto" placeholder="Monto" required>
+        <button type="submit" name="accion" value="depositar">Depositar</button>
+        <button type="submit" name="accion" value="retirar">Retirar</button>
+    </form>
+</body>
+</html>
+
